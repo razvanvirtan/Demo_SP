@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <script src="https://unpkg.com/jwt-decode@3.0.0/build/jwt-decode.js"></script>
+    </head>
+    <body>
+        <center>
+            <h1> Secure Tech Forum </h1>
+            <div id="g_id_onload"
+            data-client_id="678972082492-ktfl7obfrfd2corkh80sru8t3meil5lr.apps.googleusercontent.com">
+            </div>
+            <button id="logOut" onclick="logOut()">Sign Out</button>
+        </center>
+
+        <script>
+            window.onload = function getPosts() {
+                fetch("http://0.0.0.0:3000/login?token=" + sessionStorage.getItem("credential"), {
+                    method: "POST",
+                    mode: "cors",
+                    body: JSON.stringify({
+                        id_token: { token: sessionStorage.getItem("credential")}
+                    }),
+                    headers: {
+                        "Content-type": "application/json; charset=UTF-8"
+                    }
+                }).then((response) => console.log(response.json()));
+            }
+
+            function logOut() {
+                var loggedInEmail = jwt_decode(sessionStorage.getItem("credential")).email;
+                console.log(loggedInEmail);
+                google.accounts.id.revoke(loggedInEmail, done => {
+                    console.log('consent revoked');
+                });
+                loggedIn = false;
+
+                window.location.replace("http://localhost:8080/index.html");
+            }
+        </script>
+    </body>
+</html>
