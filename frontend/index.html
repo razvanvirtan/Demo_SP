@@ -5,7 +5,7 @@
     </head>
     <body>
         <center>
-            <h1> Secure Tech Forum </h1>
+            <h1> Celebrities Forum </h1>
             <div id="g_id_onload"
                 data-client_id="678972082492-ktfl7obfrfd2corkh80sru8t3meil5lr.apps.googleusercontent.com"   
                 data-callback="onSignIn">
@@ -20,7 +20,8 @@
             function onSignIn(googleUser) {
                 sessionStorage.setItem("credential", googleUser.credential);
                 id_token = googleUser.credential;
-                window.location.replace("http://localhost:8080/forum.html");
+                const forumURL = "http://localhost:8080/forum.html?username=" + jwt_decode(sessionStorage.getItem("credential")).email;
+                window.location.replace(forumURL);
             }
 
             function logOut() {

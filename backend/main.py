@@ -9,6 +9,7 @@ from google.oauth2 import id_token
 import logging
 import psycopg2
 import json
+import datetime
 
 class Token(BaseModel):
     token: str
@@ -38,10 +39,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/login/")
 def login(token: str):
     try:
-        # Specify the CLIENT_ID of the app that accesses the backend:
         idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
 
         userid = idinfo['sub']
@@ -56,10 +57,29 @@ def login(token: str):
     posts = [{"title": post[0], "text": post[1], "author": post[2], "time": post[3].strftime("%d-%m-%Y, %H:%M")}
             for post in cursor.fetchall()]
     print(json.dumps(posts))
-
     cursor.close()
 
     return json.dumps(posts)
+
+
+@app.post("/new_post")
+def new_post(token: str, title: str, text: str):
+    try:
+        idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+
+        userid = idinfo['sub']
+        logging.info(idinfo)
+    except ValueError:
+        # Invalid token
+        return {"ok" : False}
+    
+    cursor = db_conn.cursor()
+    cursor.execute(f'''INSERT INTO posts (title, text, author, time) VALUES (E'{title}', E'{text}', E'{idinfo["email"]}', E'{datetime.datetime.now().strftime("%d-%m-%Y, %H:%M")}');''')
+    db_conn.commit()    
+    cursor.close()
+
+    return {"ok": True}
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=3000)
